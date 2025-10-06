@@ -57,6 +57,7 @@ model Match {
   finalScore             String?
   winningParticipantId   Int?
   winningParticipantType ParticipantType?
+  durationInMs           Int?
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 
@@ -72,6 +73,7 @@ model Set {
   finalScore             String?
   winningParticipantId   Int?
   winningParticipantType ParticipantType?
+  durationInMs           Int?
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 
@@ -89,6 +91,7 @@ model Game {
   finalScore             String?
   winningParticipantId   Int?
   winningParticipantType ParticipantType?
+  durationInMs           Int?
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 
@@ -116,11 +119,11 @@ model Point {
 }
 
 enum MatchType {
-  singles
-  doubles
+  SINGLES
+  DOUBLES
 }
 
 enum ParticipantType {
-  player
-  team
+  PLAYER
+  TEAM
 }

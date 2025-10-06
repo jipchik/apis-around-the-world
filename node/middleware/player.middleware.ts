@@ -14,14 +14,18 @@ type GetPlayerQueryData = {
     phoneNumber?: string
 }
 
+/**
+ * Creates a new player.
+ * Will fail if incoming player data includes a phone number that is already set on a player.
+ */
 const createPlayer = async (playerData: CreatePlayerData) => {
     try {
         const newPlayer = await prisma.player.create({
-        data: {
-            firstName: playerData?.firstName,
-            lastName: playerData?.lastName,
-            phoneNumber: playerData?.phoneNumber
-        }
+            data: {
+                firstName: playerData?.firstName,
+                lastName: playerData?.lastName,
+                phoneNumber: playerData?.phoneNumber
+            }
         });
         return newPlayer;
     } catch (error) {
@@ -29,6 +33,9 @@ const createPlayer = async (playerData: CreatePlayerData) => {
     }
 }
 
+/**
+ * Queries for a player by their main attributes (first name, last name, and phone number)
+ */
 const getPlayerByQuery = async (query: GetPlayerQueryData) => {
     try {
         let q = {};
@@ -50,6 +57,10 @@ const getPlayerByQuery = async (query: GetPlayerQueryData) => {
         throw error;
     }
 };
+
+const deletePlayer = () => {
+    console.log("Will delete player and all their associated match data.")
+}
 
 export {
     createPlayer,
