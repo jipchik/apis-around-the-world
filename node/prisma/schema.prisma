@@ -16,8 +16,8 @@ model Player {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Many-to-many with Team through TeamPlayer junction table
   teamPlayers TeamPlayer[]
+  participatedMatches ParticipatedMatch []
 
   @@map("players")
 }
@@ -28,8 +28,8 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Many-to-many with Player through TeamPlayer junction table
   teamPlayers TeamPlayer[]
+  participatedMatches ParticipatedMatch[]
 
   @@map("teams")
 }
@@ -58,13 +58,27 @@ model Match {
   winningParticipantId   Int?
   winningParticipantType ParticipantType?
   durationInMs           Int?
+  status                 MatchStatus      @default(INCOMPLETE)
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 
-  // One-to-many with Set
+  participatedMatches ParticipatedMatch []
   sets Set[]
 
   @@map("matches")
+}
+
+model ParticipatedMatch {
+  id            Int             @id @default(autoincrement())
+  matchId       Int
+  participantId Int
+  participantType ParticipantType
+  
+  match   Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player  Player? @relation(fields: [participantId], references: [id], onDelete: Cascade, map: "participated_match_player_fkey")
+  team    Team?   @relation(fields: [participantId], references: [id], onDelete: Cascade, map: "participated_match_team_fkey")
+
+  @@map("participated_matches")
 }
 
 model Set {
@@ -79,7 +93,6 @@ model Set {
 
   match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
-  // One-to-many with Game
   games Game[]
 
   @@map("sets")
@@ -121,6 +134,11 @@ model Point {
 enum MatchType {
   SINGLES
   DOUBLES
+}
+
+enum MatchStatus {
+  INCOMPLETE
+  COMPLETE
 }
 
 enum ParticipantType {

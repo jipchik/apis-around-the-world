@@ -12,6 +12,7 @@ type GetPlayerQueryData = {
     firstName?: string,
     lastName?: string,
     phoneNumber?: string
+    include: boolean
 }
 
 /**
@@ -47,6 +48,9 @@ const getPlayerByQuery = async (query: GetPlayerQueryData) => {
         }
         if (query.phoneNumber && query.phoneNumber !== "") {
             q = {...q, phoneNumber: query.phoneNumber}
+        }
+        if (query.include) {
+
         }
         const retrievedPlayer = await prisma.player.findFirst({
             where: q

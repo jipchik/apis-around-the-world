@@ -12,7 +12,7 @@ const initialize = async (req: Request, res: Response) => {
 };
 
 const patch = async (req: Request, res: Response) => {
-    console.log("patches match data by updating important data")
+    console.log("patches match record data by updating important data")
 };
 
 export {
