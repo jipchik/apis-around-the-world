@@ -1,59 +1,93 @@
+import { match } from "assert";
 import { PrismaClient } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
 type MatchType = "SINGLES" | "DOUBLES";
 
-type ParticipantType = "PLAYER" | "TEAM"
+type MatchData = {
+    player1Id?: number,
+    player2Id?: number,
+    team1Id?: number,
+    team2Id?: number,
+    matchType: MatchType,
+    winnerId?: number,
+    finalScore?: string,
 
-type InitializeMatchData = {
-    participant1Id: number,
-    participant1Type: ParticipantType,
-    participant2Id: number,
-    participant2Type: ParticipantType,
-    matchType: MatchType
 };
 
-const initializeMatch = async (matchData: InitializeMatchData) => {
+const initializeMatch = async (matchData: MatchData) => {
     try {
-        const [isValid, reason] = validateMatchData(matchData)
+        const [isValid, reason] = validateMatchData(matchData);
         if (isValid) {
             const createdMatch = await prisma.match.create({
                 data: {
                     type: matchData.matchType,
-                    matchDate: new Date(),
-                    participant1Id: matchData.participant1Id,
-                    participant2Id: matchData.participant2Id,
-                    participant1Type: matchData.participant1Type,
-                    participant2Type: matchData.participant2Type
-
+                    ...(matchData.matchType === 'SINGLES' && {
+                        player1Id: matchData.player1Id,
+                        player2Id: matchData.player2Id
+                    }),
+                    ...(matchData.matchType === 'DOUBLES' && {
+                        team1Id: matchData.team1Id,
+                        team2Id: matchData.team2Id
+                    })
                 }
             });
             return createdMatch;
         } else {
             return reason;
         }
+
     } catch (error) {
         throw error;
     }
 };
 
-const validateMatchData = (matchData: InitializeMatchData) => {
+const finalizeMatch = async (id: number, updateData: MatchData) => {
+    let updatedMatch = null;
+    try {
+        const match = await prisma.match.findUnique({where: {id: id}});
+
+        if (match && match.status !== "COMPLETE") {
+            const matchStartTime = new Date(match.createdAt).getTime();
+            const now = Date.now();
+
+            const duration = now - matchStartTime;
+            updatedMatch = await prisma.match.update({
+                data: {
+                    durationInMs: duration,
+                    status: "COMPLETE",
+                    winnerId: updateData.winnerId,
+                    finalScore: updateData.finalScore
+                },
+                where: {
+                    id: match.id
+                }
+            });
+        }
+        return updatedMatch;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const validateMatchData = (matchData: MatchData) => {
     const values = Object.values(matchData);
     const entriesHaveValues = values.every(value => value);
 
     if (!entriesHaveValues) return [false, "Missing required values."];
 
-    if (matchData.participant1Type !== matchData.participant2Type) {
-        return [false, "Participant types don't match."];
+    if (matchData.matchType === "DOUBLES" && !matchData.team1Id && !matchData.team2Id) {
+        return [false, "Doubles matches require team data."];
     }
-    if (matchData.matchType === "SINGLES" && matchData.participant1Type === "TEAM") {
-        return [false, "Match type does not match participant type format."];
+    if (matchData.matchType === "SINGLES" && !matchData.player1Id && !matchData.player2Id) {
+        return [false, "Singles matches require player data."];
     }
     
     return [true, ""];
 };
 
 export {
-    initializeMatch
+    initializeMatch,
+    finalizeMatch
 }

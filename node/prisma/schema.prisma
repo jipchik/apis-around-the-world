@@ -16,8 +16,9 @@ model Player {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  teamPlayers TeamPlayer[]
-  participatedMatches ParticipatedMatch []
+  matchesAsPlayer1 Match[]      @relation("player1Matches")
+  matchesAsPlayer2 Match[]      @relation("player2Matches")
+  TeamPlayer       TeamPlayer[]
 
   @@map("players")
 }
@@ -28,8 +29,9 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  teamPlayers TeamPlayer[]
-  participatedMatches ParticipatedMatch[]
+  matchesAsTeam1 Match[]      @relation("team1Matches")
+  matchesAsTeam2 Match[]      @relation("team2Matches")
+  TeamPlayer     TeamPlayer[]
 
   @@map("teams")
 }
@@ -43,88 +45,72 @@ model TeamPlayer {
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@id([teamId, playerId])
-  @@map("teamPlayers")
+  @@map("team_players")
 }
 
 model Match {
-  id                     Int              @id @default(autoincrement())
-  type                   MatchType
-  matchDate              DateTime
-  participant1Id         Int
-  participant1Type       ParticipantType
-  participant2Id         Int
-  participant2Type       ParticipantType
-  finalScore             String?
-  winningParticipantId   Int?
-  winningParticipantType ParticipantType?
-  durationInMs           Int?
-  status                 MatchStatus      @default(INCOMPLETE)
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+  id           Int         @id @default(autoincrement())
+  type         MatchType
+  matchDate    DateTime    @default(now())
+  finalScore   String?
+  winnerId     Int?
+  durationInMs Int?
+  status       MatchStatus @default(INCOMPLETE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  participatedMatches ParticipatedMatch []
-  sets Set[]
+  player1Id Int?
+  player2Id Int?
+  team1Id   Int?
+  team2Id   Int?
+
+  player1 Player? @relation("player1Matches", fields: [player1Id], references: [id])
+  player2 Player? @relation("player2Matches", fields: [player2Id], references: [id])
+  team1   Team?   @relation("team1Matches", fields: [team1Id], references: [id])
+  team2   Team?   @relation("team2Matches", fields: [team2Id], references: [id])
+  sets    Set[]
 
   @@map("matches")
 }
 
-model ParticipatedMatch {
-  id            Int             @id @default(autoincrement())
-  matchId       Int
-  participantId Int
-  participantType ParticipantType
-  
-  match   Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  player  Player? @relation(fields: [participantId], references: [id], onDelete: Cascade, map: "participated_match_player_fkey")
-  team    Team?   @relation(fields: [participantId], references: [id], onDelete: Cascade, map: "participated_match_team_fkey")
-
-  @@map("participated_matches")
-}
-
 model Set {
-  id                     Int              @id @default(autoincrement())
-  matchId                Int
-  finalScore             String?
-  winningParticipantId   Int?
-  winningParticipantType ParticipantType?
-  durationInMs           Int?
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+  id           Int      @id @default(autoincrement())
+  matchId      Int
+  finalScore   String?
+  winnerId     Int?
+  durationInMs Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-
+  match Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
   games Game[]
 
   @@map("sets")
 }
 
 model Game {
-  id                     Int              @id @default(autoincrement())
-  setId                  Int
-  finalScore             String?
-  winningParticipantId   Int?
-  winningParticipantType ParticipantType?
-  durationInMs           Int?
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+  id           Int      @id @default(autoincrement())
+  setId        Int
+  finalScore   String?
+  winnerId     Int?
+  durationInMs Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  set Set @relation(fields: [setId], references: [id], onDelete: Cascade)
-
-  // One-to-many with Point
+  set    Set     @relation(fields: [setId], references: [id], onDelete: Cascade)
   points Point[]
 
   @@map("games")
 }
 
 model Point {
-  id                     Int             @id @default(autoincrement())
-  gameId                 Int
-  winningParticipantId   Int
-  winningParticipantType ParticipantType
-  gameScoreBefore        String?
-  gameScoreAfter         String?
-  createdAt              DateTime        @default(now())
-  updatedAt              DateTime        @updatedAt
+  id              Int      @id @default(autoincrement())
+  gameId          Int
+  winnerId        Int
+  gameScoreBefore String?
+  gameScoreAfter  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
@@ -139,9 +125,4 @@ enum MatchType {
 enum MatchStatus {
   INCOMPLETE
   COMPLETE
-}
-
-enum ParticipantType {
-  PLAYER
-  TEAM
 }

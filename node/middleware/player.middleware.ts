@@ -62,11 +62,36 @@ const getPlayerByQuery = async (query: GetPlayerQueryData) => {
     }
 };
 
+const getMatchesForPlayer = async (playerId: number) => {
+    try {
+        const playerWithMatches = await prisma.player.findUnique({
+            where: { id: playerId },
+            include: {
+                matchesAsPlayer1: true,
+                matchesAsPlayer2: true
+            }
+        });
+        
+        let allMatches = [];
+        
+        if (playerWithMatches?.matchesAsPlayer1) {
+            allMatches.push(...playerWithMatches.matchesAsPlayer1)
+        }
+        if (playerWithMatches?.matchesAsPlayer2) {
+            allMatches.push(...playerWithMatches.matchesAsPlayer2)
+        }   
+        return allMatches;
+    } catch (error) {
+        throw error;
+    }
+};
+
 const deletePlayer = () => {
     console.log("Will delete player and all their associated match data.")
 }
 
 export {
     createPlayer,
-    getPlayerByQuery
+    getPlayerByQuery,
+    getMatchesForPlayer
 }

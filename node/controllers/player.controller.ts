@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createPlayer, getPlayerByQuery } from "../middleware/player.middleware";
+import { createPlayer, getPlayerByQuery, getMatchesForPlayer } from "../middleware/player.middleware";
 
 const create = async (req: Request, res: Response) => {
     const playerData = req.body;
@@ -23,7 +23,18 @@ const findOneByQuery = async (req: Request, res: Response) => {
     }
 }
 
+const findMatchesForPlayer = async (req: Request, res: Response) => {
+    try {
+        const matches = await getMatchesForPlayer(Number(req.params.id));
+
+        res.send({status: 200, data: matches})
+    } catch (error) {
+        res.send({status: 500, errorMessage: `Failed to retrieve matches for player with id ${req.params.id} due to: ${error}`})
+    }
+}
+
 export {
     create,
-    findOneByQuery
+    findOneByQuery,
+    findMatchesForPlayer
 }
