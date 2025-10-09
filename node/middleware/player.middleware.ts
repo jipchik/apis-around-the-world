@@ -62,6 +62,9 @@ const getPlayerByQuery = async (query: GetPlayerQueryData) => {
     }
 };
 
+/**
+ * Retrieves the matches for the specified player.
+ */
 const getMatchesForPlayer = async (playerId: number) => {
     try {
         const playerWithMatches = await prisma.player.findUnique({
@@ -86,6 +89,7 @@ const getMatchesForPlayer = async (playerId: number) => {
     }
 };
 
+//TODO:: implement
 const deletePlayer = () => {
     console.log("Will delete player and all their associated match data.")
 }

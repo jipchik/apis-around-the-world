@@ -49,15 +49,15 @@ model TeamPlayer {
 }
 
 model Match {
-  id           Int         @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   type         MatchType
-  matchDate    DateTime    @default(now())
+  matchDate    DateTime  @default(now())
   finalScore   String?
   winnerId     Int?
   durationInMs Int?
-  status       MatchStatus @default(INCOMPLETE)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  status       Status    @default(INCOMPLETE)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   player1Id Int?
   player2Id Int?
@@ -74,13 +74,15 @@ model Match {
 }
 
 model Set {
-  id           Int      @id @default(autoincrement())
-  matchId      Int
-  finalScore   String?
-  winnerId     Int?
-  durationInMs Int?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  matchId       Int
+  finalScore    String?
+  tiebreakScore String?
+  winnerId      Int?
+  durationInMs  Int?
+  status        Status   @default(INCOMPLETE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   match Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
   games Game[]
@@ -89,13 +91,16 @@ model Set {
 }
 
 model Game {
-  id           Int      @id @default(autoincrement())
-  setId        Int
-  finalScore   String?
-  winnerId     Int?
-  durationInMs Int?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                 Int      @id @default(autoincrement())
+  setId              Int
+  numberOfAdvantages Int?
+  winnerId           Int?
+  serverId           Int
+  durationInMs       Int?
+  status             Status   @default(INCOMPLETE)
+  startTime          DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   set    Set     @relation(fields: [setId], references: [id], onDelete: Cascade)
   points Point[]
@@ -122,7 +127,7 @@ enum MatchType {
   DOUBLES
 }
 
-enum MatchStatus {
+enum Status {
   INCOMPLETE
   COMPLETE
 }

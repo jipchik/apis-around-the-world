@@ -1,4 +1,3 @@
-import { match } from "assert";
 import { PrismaClient } from "../generated/prisma";
 
 const prisma = new PrismaClient();
@@ -10,7 +9,7 @@ type MatchData = {
     player2Id?: number,
     team1Id?: number,
     team2Id?: number,
-    matchType: MatchType,
+    matchType?: MatchType,
     winnerId?: number,
     finalScore?: string,
 
@@ -22,7 +21,7 @@ const initializeMatch = async (matchData: MatchData) => {
         if (isValid) {
             const createdMatch = await prisma.match.create({
                 data: {
-                    type: matchData.matchType,
+                    type: matchData.matchType!,
                     ...(matchData.matchType === 'SINGLES' && {
                         player1Id: matchData.player1Id,
                         player2Id: matchData.player2Id
@@ -30,7 +29,10 @@ const initializeMatch = async (matchData: MatchData) => {
                     ...(matchData.matchType === 'DOUBLES' && {
                         team1Id: matchData.team1Id,
                         team2Id: matchData.team2Id
-                    })
+                    }),
+                    sets: {
+                        create: {}
+                    }
                 }
             });
             return createdMatch;
