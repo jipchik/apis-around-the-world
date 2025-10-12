@@ -2,19 +2,6 @@ import { PrismaClient } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
-type CreatePlayerData = {
-    firstName: string,
-    lastName: string,
-    phoneNumber: string
-}
-
-type GetPlayerQueryData = {
-    firstName?: string,
-    lastName?: string,
-    phoneNumber?: string
-    include: boolean
-}
-
 /**
  * Creates a new player.
  * Will fail if incoming player data includes a phone number that is already set on a player.

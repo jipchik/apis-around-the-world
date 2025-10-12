@@ -4,8 +4,12 @@ import { finalizeMatch, initializeMatch } from '../middleware/match.middleware';
 
 const initialize = async (req: Request, res: Response) => {
     try {
-        const initializedMatch = await initializeMatch(req.body);
-        res.send({status: 200, data: initializedMatch})
+        const [initializedMatch, reason] = await initializeMatch(req.body);
+        if (initializedMatch) {
+            res.send({status: 200, data: initializedMatch})
+        } else {
+            res.send({status: 400, message: reason})
+        }
     } catch (error) {
         res.send({status: 500, errorMessage: `Failed to initialize match due to: ${error}`})
     }
@@ -17,7 +21,7 @@ const finalize = async (req: Request, res: Response) => {
         if (finalizedMatch) {
             res.send({status: 200, data: finalizedMatch})
         } else {
-            res.send({status: 404, message: "Match not found or is already complete."})
+            res.send({status: 400, message: "Match not found or is already complete."})
         }
     } catch (error) {
         res.send({status: 500, errorMessage: `Failed to finalize match due to: ${error}`})

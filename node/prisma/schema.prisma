@@ -31,7 +31,7 @@ model Team {
 
   matchesAsTeam1 Match[]      @relation("team1Matches")
   matchesAsTeam2 Match[]      @relation("team2Matches")
-  TeamPlayer     TeamPlayer[]
+  teamPlayers     TeamPlayer[]
 
   @@map("teams")
 }
