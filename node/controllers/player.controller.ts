@@ -1,40 +1,44 @@
 import { Request, Response } from 'express';
-import { createPlayer, getPlayerByQuery, getMatchesForPlayer } from "../middleware/player.middleware";
+import { createPlayer, getPlayerByQuery, getMatchesForPlayer } from '../middleware/player.middleware';
 
 const create = async (req: Request, res: Response) => {
-    const playerData = req.body;
-    try {
-        const createdPlayer = await createPlayer(playerData);
+  const playerData = req.body;
+  try {
+    const createdPlayer = await createPlayer(playerData);
 
-        res.send({status: 200, data: createdPlayer});
-
-    } catch (error) {
-        res.send({status: 500, errorMessage: `Failed to create player due to: ${error}`})
-    }
+    res.send({ status: 200, data: createdPlayer });
+  } catch (error) {
+    res.send({
+      status: 500,
+      errorMessage: `Failed to create player due to: ${error}`,
+    });
+  }
 };
 
-const findOneByQuery = async (req: Request, res: Response) => {
-    try {
-        const retreivedPlayer = await getPlayerByQuery(req.query as any);
+const findOneByQuery = async (req: Request<unknown, unknown, unknown, GetPlayerQueryData>, res: Response) => {
+  try {
+    const retreivedPlayer = await getPlayerByQuery(req.query);
 
-        res.send({status: 200, data: retreivedPlayer});
-    } catch (error) {
-        res.send({status: 500, errorMessage: `Failed to retrieve player due to: ${error}`})
-    }
-}
+    res.send({ status: 200, data: retreivedPlayer });
+  } catch (error) {
+    res.send({
+      status: 500,
+      errorMessage: `Failed to retrieve player due to: ${error}`,
+    });
+  }
+};
 
 const findMatchesForPlayer = async (req: Request, res: Response) => {
-    try {
-        const matches = await getMatchesForPlayer(Number(req.params.id));
+  try {
+    const matches = await getMatchesForPlayer(Number(req.params.id));
 
-        res.send({status: 200, data: matches})
-    } catch (error) {
-        res.send({status: 500, errorMessage: `Failed to retrieve matches for player with id ${req.params.id} due to: ${error}`})
-    }
-}
+    res.send({ status: 200, data: matches });
+  } catch (error) {
+    res.send({
+      status: 500,
+      errorMessage: `Failed to retrieve matches for player with id ${req.params.id} due to: ${error}`,
+    });
+  }
+};
 
-export {
-    create,
-    findOneByQuery,
-    findMatchesForPlayer
-}
+export { create, findOneByQuery, findMatchesForPlayer };

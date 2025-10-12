@@ -6,10 +6,10 @@ import constants from './constants';
 
 dotenv.config();
 
-import gameRoutes from "./routes/game.routes";
-import matchRoutes from "./routes/match.routes";
-import playerRoutes from "./routes/player.routes";
-import teamRoutes  from "./routes/team.routes";
+import gameRoutes from './routes/game.routes';
+import matchRoutes from './routes/match.routes';
+import playerRoutes from './routes/player.routes';
+import teamRoutes from './routes/team.routes';
 
 const app = express();
 const port = process.env.PORT || 3000;

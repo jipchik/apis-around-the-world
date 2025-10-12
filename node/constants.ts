@@ -1,3 +1,3 @@
 export default {
-    apiVersion: "v1"
-}
+  apiVersion: 'v1',
+};
